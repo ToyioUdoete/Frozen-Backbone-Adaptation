@@ -1,5 +1,12 @@
 # [WACV'27 WVAQ Workshop] Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network
 
+<div>
+  <strong>Toyiomfon Udoete, Alisha Khan, Sudipa Roy, Judith Nkechinyere Njoku &amp; Diksha Shukla</strong><br>
+  Department of Electrical Engineering and Computer Science, University of Wyoming
+</div>
+
+[Project page](https://toyioudoete.github.io/Frozen-Backbone-Adaptation/)
+
 ---
 
 ## Overview
