@@ -1,198 +1,586 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-  <meta charset="utf-8">
+  <title>Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</title>
+  <meta name="author" content="Toyiomfon Udoete">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Frozen-Backbone Adaptation | WACV 2027 WVAQ Workshop</title>
-  <meta name="description" content="Frozen-Backbone Adaptation: replacing one component of a pretrained deraining network and training only that component, while the rest of the backbone stays frozen.">
-  <meta name="keywords" content="image deraining, image restoration, frozen backbone, adapters, parameter-efficient, RAINet, WACV">
-  <meta name="author" content="Toyiomfon Udoete, Alisha Khan, Sudipa Roy, Judith Nkechinyere Njoku, Diksha Shukla">
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network">
-  <meta property="og:description" content="Replacing one component of a pretrained deraining network and training only that component.">
-  <meta property="og:url" content="https://toyioudoete.github.io/Frozen-Backbone-Adaptation/">
-  <meta property="og:image" content="https://toyioudoete.github.io/Frozen-Backbone-Adaptation/static/images/glra.png">
-  <meta name="citation_title" content="Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network">
-  <meta name="citation_author" content="Udoete, Toyiomfon">
-  <meta name="citation_author" content="Khan, Alisha">
-  <meta name="citation_author" content="Roy, Sudipa">
-  <meta name="citation_author" content="Njoku, Judith Nkechinyere">
-  <meta name="citation_author" content="Shukla, Diksha">
-  <meta name="citation_publication_date" content="2027">
-  <meta name="citation_conference_title" content="IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) Workshops">
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <meta name="description" content="Frozen-Backbone Adaptation: replacing one component of a pretrained deraining network and training only that component. WVAQ Workshop, WACV 2027.">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
   <style>
-    .figure { margin: 0 auto; }
-    .figure img { width: 100%; height: auto; border-radius: 6px; }
-    .caption { margin-top: 0.75rem; color: #4a4a4a; font-size: 0.95rem; text-align: left; }
-    .results-table { margin: 0 auto; }
-    .results-table td, .results-table th { text-align: center; }
-    .results-table td:first-child, .results-table th:first-child { text-align: left; }
+    /* ── Reset & Base ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans', sans-serif; background: #fff; color: #222; width: 100%; }
+    a { color: #2c3e50; }
+    a:hover { color: #e67e22; }
+
+    /* ── Root content container (matches OneRestore layout) ── */
+    .root-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 30px;
+    }
+
+    /* ── Title / name ── */
+    name {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.25;
+      display: block;
+      text-align: center;
+    }
+
+    /* ── Author list ── */
+    #author-list {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 16px;
+    }
+    #author-list a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    #author-list a:hover { text-decoration: underline; }
+
+    #remark-list {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      margin-top: 6px;
+    }
+
+    #institution-list {
+      text-align: center;
+      font-size: 16px;
+      color: #444;
+      margin-top: 8px;
+      line-height: 1.8;
+    }
+
+    #publication {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #c0392b;
+      margin-top: 12px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Link buttons (exact OneRestore style) ── */
+    #button-list {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .link-button {
+      display: inline-block;
+      margin: 4px 3px;
+    }
+
+    .link-button-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #2c3e50;
+      color: white !important;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: background-color 0.25s, color 0.25s;
+      border: 2px solid #2c3e50;
+    }
+    .link-button-content:hover {
+      background-color: #fff;
+      color: #2c3e50 !important;
+    }
+    .link-button-content svg { width: 1.1em; height: 1.1em; }
+
+    /* ── GitHub badges ── */
+    #count { padding-top: 16px; text-align: center; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      background: #1a1a2e;
+      margin-top: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      padding: 20px 12px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+      line-height: 1;
+    }
+    .stat-num.orange { color: #e67e22; }
+    .stat-num.green  { color: #2ecc71; }
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 5px;
+    }
+
+    /* ── Section headings (matches OneRestore .section-name) ── */
+    .section-name {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      padding: 24px 0 12px;
+      color: #1a1a2e;
+    }
+
+    /* ── Section text ── */
+    .section-content-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #444;
+      text-align: justify;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Contribution cards ── */
+    .contrib-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 16px;
+    }
+    .contrib-card {
+      background: #f8f9fb;
+      border: 1.5px solid #dde3ee;
+      border-top: 3px solid #2c3e50;
+      border-radius: 10px;
+      padding: 24px 22px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .contrib-card:nth-child(1) { border-top-color: #e67e22; }
+    .contrib-card:nth-child(2) { border-top-color: #2980b9; }
+    .contrib-card:nth-child(3) { border-top-color: #27ae60; }
+    .contrib-card:nth-child(4) { border-top-color: #8e44ad; }
+    .contrib-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .contrib-card h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+    .contrib-card p  { font-size: 14px; line-height: 1.65; color: #555; }
+    .contrib-icon    { font-size: 26px; margin-bottom: 10px; }
+
+    
+    .demo-btn {
+      background-color: #2c3e50;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      font-size: 15px;
+      margin: 4px 2px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .demo-btn:hover {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+      border: 2px solid #2c3e50;
+    }
+    .demo-btn.active {
+      background-color: #e67e22;
+      border: 2px solid #e67e22;
+    }
+
+    /* ── Results table ── */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 12px;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #dde3ee;
+    }
+    .results-table thead { background: #1a1a2e; color: #fff; }
+    .results-table th { padding: 12px 14px; text-align: left; font-weight: 500; font-size: 13px; }
+    .results-table th.r, .results-table td.r { text-align: right; }
+    .results-table td { padding: 10px 14px; border-bottom: 1px solid #edf0f5; color: #555; }
+    .results-table tr:last-child td { border-bottom: none; }
+    .results-table tr.group td { background: #f4f6fb; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; }
+    .results-table tr.ours td { background: rgba(41,128,185,0.06); font-weight: 600; color: #222; }
+    .best   { color: #c0392b !important; font-weight: 700 !important; }
+    .second { color: #2980b9 !important; font-weight: 600 !important; }
+
+    /* ── BibTeX ── */
+    .bibtex {
+      background: #1a1a2e;
+      border-radius: 10px;
+      padding: 24px 28px;
+      overflow-x: auto;
+      position: relative;
+    }
+    .bibtex code {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #a8c8f0;
+      line-height: 1.7;
+      white-space: pre;
+    }
+    .copy-bib {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.75);
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .copy-bib:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* ── Shaded section ── */
+    .shaded-section {
+      background: #f5f5f5;
+      margin: 30px 0 0;
+      padding: 10px 0 30px;
+    }
+
+    /* ── Poster hover ── */
+    .poster-wrap { display: block; transition: opacity 0.2s; }
+    .poster-wrap:hover { opacity: 0.88; }
+
+    /* ── Footer ── */
+    footer {
+      background: #1a1a2e;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: 13px;
+      margin-top: 50px;
+    }
+    footer a { color: rgba(255,255,255,0.6); }
+
+    @media (max-width: 680px) {
+      name { font-size: 22px; }
+      .section-name { font-size: 22px; }
+      .stat-num { font-size: 26px; }
+      #author-list { font-size: 15px; }
+      .two-col { grid-template-columns: 1fr !important; }
+      .root-content { padding: 0 16px; }
+    }
+    .two-col > div, .contrib-grid > div { min-width: 0; }
+    .stat-item { min-width: 140px; }
   </style>
+
+  <script>
+    function copyBib() {
+      const text = document.getElementById('bib-text').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-bib');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
 </head>
-<body>
 
-<button class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to top" aria-label="Scroll to top">
-  <i class="fas fa-chevron-up"></i>
-</button>
+<body style="width:100%;">
+<div style="width:100%;">
 
-<main id="main-content">
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-2 publication-title">Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Toyiomfon Udoete,</span>
-            <span class="author-block">Alisha Khan,</span>
-            <span class="author-block">Sudipa Roy,</span>
-            <span class="author-block">Judith Nkechinyere Njoku,</span>
-            <span class="author-block">Diksha Shukla</span>
+  <div class="root-content" style="padding-top:36px;">
+
+    <div style="display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap;">
+      <div style="background:#1a1a2e; color:#fff; font-family:'Google Sans',sans-serif; font-size:22px; font-weight:800; padding:10px 18px; border-radius:10px; letter-spacing:0.02em;">
+        F<span style="color:#e67e22;">BA</span>
+      </div>
+      <name>Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</name>
+    </div>
+
+    <br>
+
+    <div id="author-list">
+      Toyiomfon Udoete&nbsp;&nbsp;&nbsp;
+      Alisha Khan&nbsp;&nbsp;&nbsp;
+      Sudipa Roy&nbsp;&nbsp;&nbsp;
+      <a href="https://www.judithnjoku.me/" target="_blank">Judith Nkechinyere Njoku</a>&nbsp;&nbsp;&nbsp;
+      <a href="https://www.uwyo.edu/eecs/faculty-staff/faculty/diksha-shukla/index.html" target="_blank">Diksha Shukla</a>
+    </div>
+
+    <div id="institution-list">
+      Dept. of Electrical Engineering &amp; Computer Science, University of Wyoming, USA
+    </div>
+    <p id="publication">WACV Workshop 2027</p>
+
+    <div id="button-list">
+      <span class="link-button">
+        <a class="link-button-content" href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </span>
+      <span class="link-button">
+        <a class="link-button-content" href="#bib">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11.5a.5.5 0 0 1-.777.416L7 13.101l-4.223 2.815A.5.5 0 0 1 2 15.5V4zm2-1a1 1 0 0 0-1 1v10.566l3.723-2.482a.5.5 0 0 1 .554 0L11 14.566V4a1 1 0 0 0-1-1H4z"/><path fill-rule="evenodd" d="M4.268 1H12a1 1 0 0 1 1 1v11.768l.223.148A.5.5 0 0 0 14 13.5V2a2 2 0 0 0-2-2H6a2 2 0 0 0-1.732 1z"/></svg>
+          BibTeX
+        </a>
+      </span>
+    </div>
+
+    <div id="count">
+      <img src="https://img.shields.io/github/stars/ToyioUdoete/Frozen-Backbone-Adaptation?label=%F0%9F%8C%9F%20Star&color=blue" alt="Stars">
+      &nbsp;&nbsp;
+      <img src="https://img.shields.io/github/forks/ToyioUdoete/Frozen-Backbone-Adaptation?label=%F0%9F%94%A7%20Fork&color=green" alt="Forks">
+    </div>
+
+    <div class="stats-bar" style="margin-top:28px;">
+      <div class="stat-item">
+        <span class="stat-num orange">39.05 dB</span>
+        <div class="stat-label">PSNR on Rain100L (Deformable)</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">77K</span>
+        <div class="stat-label">Trainable parameters (Directional)</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num green">+1.20 dB</span>
+        <div class="stat-label">Over fully trained RAINet</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num orange">2.9%</span>
+        <div class="stat-label">Of RAINet's parameters trained (Directional)</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">3</span>
+        <div class="stat-label">Benchmarks: Rain100L, Rain100H, CDD11</div>
+      </div>
+    </div>
+
+    <div style="padding-top:28px; text-align:center;">
+      <img src="assets/example.png" alt="Rainy input and outputs of the directional, deformable and ZoomGLRA adapters"
+           width="100%" style="border-radius:10px; border:1px solid #dde3ee;"
+           onerror="this.style.display='none'"/>
+    </div>
+
+  </div>
+
+
+  <div class="shaded-section">
+    <div class="root-content">
+      <h1 class="section-name">Visual Restoration Results</h1>
+      <p class="section-content-text" style="text-align:center; margin-bottom:20px;">
+        Qualitative comparison on Rain100L, Rain100H and CDD11. Left: rainy input (In.), ground truth (GT) and the convolutional and
+        multi-scale adapters: Directional (Dir.), ZoomGLRA (Zoom), Dynamic (Dyn.) and Deformable (Def.). Right: input, ground truth
+        and the fusion adapters: Concatenation (Concat), Gated, Additive (Add.) and Multiplicative (Mult.).
+      </p>
+      <img src="assets/comparison.png" width="100%"
+           style="border-radius:10px; border:1px solid #dde3ee; background:#fff;"
+           alt="Qualitative comparison across Rain100L, Rain100H and CDD11"
+           onerror="this.style.display='none'"/>
+    </div>
+  </div>
+
+
+  <div class="root-content" style="padding-top:30px;">
+    <h1 class="section-name">Overview</h1>
+    <p class="section-content-text">
+      Adapting a pretrained restoration network to a new design usually means retraining the whole model. We study
+      <strong>Frozen-Backbone Adaptation (FBA)</strong>: one recurring component of a pretrained deraining network is replaced,
+      and only the new component is trained while the rest of the backbone stays frozen.
+    </p>
+    <br>
+    <p class="section-content-text">
+      We use <strong>RAINet</strong> (2.7M parameters, 20 Image Decomposition Blocks) as the backbone and substitute the local
+      and global pathways of its GLRA module with convolutional, fusion and attention adapters. With
+      <strong>77K to 307K trainable parameters</strong>, the directional, deformable and dynamic adapters improve on the fully
+      trained RAINet on Rain100L, reaching <strong>39.05 dB PSNR</strong> against 37.85 dB. We also compare adapting GLRA with
+      adapting the DCMLP module, and test zero-shot transfer and target-domain adaptation on Rain100H and CDD11.
+    </p>
+  </div>
+
+
+  <div class="shaded-section">
+    <div class="root-content">
+      <h1 class="section-name">Contributions</h1>
+      <div class="contrib-grid">
+        <div class="contrib-card">
+          <h3>Frozen-Backbone Adaptation</h3>
+          <p>A protocol for changing one component of a pretrained deraining network: the substituted adapter is trained and the rest of RAINet stays frozen, so as few as <strong>77K parameters</strong> (under 3% of the backbone) are updated.</p>
+        </div>
+        <div class="contrib-card">
+          <h3>Convolutional Adapters</h3>
+          <p>Directional, deformable and dynamic multi-dilation convolutions, and the multi-scale ZoomGLRA, in the local pathway of GLRA. The best reach <strong>39.05 dB</strong> on Rain100L, <strong>+1.20 dB</strong> over the fully trained network.</p>
+        </div>
+        <div class="contrib-card">
+          <h3>Fusion and Attention Adapters</h3>
+          <p>Multiplicative, additive, concatenation and gated fusion of the global pathway, and channel, self- and Swin-style window attention. Learnable fusion and window attention do best within these families.</p>
+        </div>
+        <div class="contrib-card">
+          <h3>Adaptation Site and Transfer</h3>
+          <p>Adapting GLRA beats adapting DCMLP for every adapter type on Rain100L. The Rain100L adapters are also tested <strong>zero-shot</strong> and with target-domain adaptation on Rain100H and CDD11.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="root-content" style="padding-top:30px;">
+    <h1 class="section-name">Method</h1>
+    <img src="assets/glra.png" width="100%"
+         style="border-radius:10px; border:1px solid #dde3ee;"
+         alt="GLRA module with the fusion and local convolution adapters"
+         onerror="this.style.display='none'"/>
+    <p style="font-size:13px; color:#888; text-align:center; margin-top:10px;">
+      <strong>Fig. 2.</strong> The GLRA module of RAINet and the adapters substituted into it.
+      (1) <strong>Fusion ablations</strong> (top right) replace the multiplicative fusion of the global pathway.
+      (2) <strong>Local convolution ablations</strong> (bottom) replace the directional spatial convolutions of the local pathway.
+      Only the substituted adapter is trained.
+    </p>
+  </div>
+
+
+  <div class="shaded-section">
+    <div class="root-content">
+      <h1 class="section-name">Quantitative Results</h1>
+      <p class="section-content-text" style="text-align:center; margin-bottom:16px;">
+        PSNR and SSIM on the Y channel; LPIPS with AlexNet. Adapters are trained on Rain100L with the backbone frozen.
+        <span style="color:#c0392b; font-weight:700;">Red</span> = best,
+        <span style="color:#2980b9; font-weight:600;">blue</span> = second best within each group.
+      </p>
+
+      <div style="overflow-x:auto;">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th class="r">Trainable params</th>
+              <th class="r">PSNR ↑</th>
+              <th class="r">SSIM ↑</th>
+              <th class="r">LPIPS ↓</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="5">Rain100L &middot; GLRA-site adapters (frozen backbone)</td></tr>
+            <tr><td>RAINet (fully trained)</td><td class="r">2.7M</td><td class="r">37.850</td><td class="r">0.9796</td><td class="r">0.01627</td></tr>
+            <tr><td>ZoomGLRA</td><td class="r">96K</td><td class="r">36.648</td><td class="r">0.9773</td><td class="r best">0.01072</td></tr>
+            <tr class="ours"><td>Directional</td><td class="r best">77K</td><td class="r">38.987</td><td class="r">0.9828</td><td class="r">0.01252</td></tr>
+            <tr class="ours"><td>Dynamic</td><td class="r">307K</td><td class="r second">39.043</td><td class="r best">0.9831</td><td class="r second">0.01210</td></tr>
+            <tr class="ours"><td>Deformable</td><td class="r">219K</td><td class="r best">39.052</td><td class="r best">0.9831</td><td class="r">0.01261</td></tr>
+            <tr class="group"><td colspan="5">Zero-shot transfer of the Rain100L adapters &middot; Rain100H</td></tr>
+            <tr><td>RAINet (fully trained)</td><td class="r">2.7M</td><td class="r">17.160</td><td class="r best">0.5251</td><td class="r best">0.4476</td></tr>
+            <tr><td>Directional</td><td class="r">77K</td><td class="r second">17.211</td><td class="r">0.4605</td><td class="r">0.5371</td></tr>
+            <tr><td>Dynamic</td><td class="r">307K</td><td class="r best">17.707</td><td class="r">0.5035</td><td class="r">0.4767</td></tr>
+            <tr><td>Deformable</td><td class="r">219K</td><td class="r">17.104</td><td class="r second">0.5138</td><td class="r second">0.4718</td></tr>
+            <tr class="group"><td colspan="5">Zero-shot transfer of the Rain100L adapters &middot; CDD11</td></tr>
+            <tr><td>RAINet (fully trained)</td><td class="r">2.7M</td><td class="r">23.331</td><td class="r">0.8983</td><td class="r">0.1078</td></tr>
+            <tr><td>ZoomGLRA</td><td class="r">96K</td><td class="r">23.989</td><td class="r">0.9054</td><td class="r">0.1000</td></tr>
+            <tr><td>Directional</td><td class="r">77K</td><td class="r best">24.617</td><td class="r best">0.9168</td><td class="r best">0.0883</td></tr>
+            <tr><td>Dynamic</td><td class="r">307K</td><td class="r">24.460</td><td class="r">0.9069</td><td class="r">0.1056</td></tr>
+            <tr><td>Deformable</td><td class="r">219K</td><td class="r second">24.568</td><td class="r second">0.9118</td><td class="r second">0.0948</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="shaded-section">
+    <div class="root-content">
+      <h1 class="section-name">Ablation Studies</h1>
+      <p class="section-content-text" style="text-align:center; margin-bottom:20px;">
+        On Rain100L. Adapting the GLRA module gives <strong>+0.84 to +0.94 dB PSNR</strong> over adapting DCMLP with the same adapter.
+      </p>
+
+      <div class="two-col" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div>
+          <p style="font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:8px;">Adaptation Site: GLRA vs. DCMLP</p>
+          <div style="overflow-x:auto;">
+            <table class="results-table">
+              <thead>
+                <tr><th>Adapter</th><th>Site</th><th class="r">Params</th><th class="r">PSNR</th><th class="r">LPIPS</th></tr>
+              </thead>
+              <tbody>
+            <tr class="ours"><td>Directional</td><td>GLRA</td><td class="r">77K</td><td class="r best">38.987</td><td class="r best">0.01252</td></tr>
+            <tr><td>Directional</td><td>DCMLP</td><td class="r">77K</td><td class="r">38.045</td><td class="r">0.01490</td></tr>
+            <tr class="ours"><td>Dynamic</td><td>GLRA</td><td class="r">307K</td><td class="r best">39.043</td><td class="r best">0.01210</td></tr>
+            <tr><td>Dynamic</td><td>DCMLP</td><td class="r">722K</td><td class="r">38.205</td><td class="r">0.01440</td></tr>
+            <tr class="ours"><td>Deformable</td><td>GLRA</td><td class="r">219K</td><td class="r best">39.052</td><td class="r best">0.01261</td></tr>
+            <tr><td>Deformable</td><td>DCMLP</td><td class="r">219K</td><td class="r">38.215</td><td class="r">0.01400</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">Department of Electrical Engineering and Computer Science<br>University of Wyoming, Laramie, WY, USA</span>
-          </div>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">WVAQ Workshop, WACV 2027</span>
-          </div>
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <span class="link-block">
-                <a href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon"><i class="fab fa-github"></i></span>
-                  <span>Code</span>
-                </a>
-              </span>
-            </div>
+        </div>
+
+        <div>
+          <p style="font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:8px;">Fusion and Attention Adapters</p>
+          <div style="overflow-x:auto;">
+            <table class="results-table">
+              <thead>
+                <tr><th>Adapter</th><th class="r">Params</th><th class="r">PSNR</th><th class="r">LPIPS</th></tr>
+              </thead>
+              <tbody>
+            <tr class="group"><td colspan="4">Strip fusion</td></tr>
+            <tr><td>Concatenation</td><td class="r">320K</td><td class="r second">35.995</td><td class="r">0.1240</td></tr>
+            <tr><td>Gated</td><td class="r">320K</td><td class="r best">36.229</td><td class="r best">0.0254</td></tr>
+            <tr class="group"><td colspan="4">Attention swaps</td></tr>
+            <tr><td>Channel attention</td><td class="r">40K</td><td class="r">32.729</td><td class="r">0.0818</td></tr>
+            <tr><td>Self-attention</td><td class="r">240K</td><td class="r">33.409</td><td class="r">0.0626</td></tr>
+            <tr><td>Swin-style</td><td class="r">160K</td><td class="r">34.866</td><td class="r second">0.0367</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   </div>
-</section>
 
-<section class="section hero is-light">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Overview</h2>
-        <div class="content has-text-justified">
-          <p>
-            Adapting a pretrained restoration network to a new design usually means retraining the whole model. We study
-            Frozen-Backbone Adaptation (FBA): one recurring component of a pretrained deraining network is replaced, and only
-            the new component is trained while the rest of the backbone stays frozen.
-          </p>
-          <p>
-            We use RAINet (2.7M parameters, 20 Image Decomposition Blocks) as the backbone and substitute the local and global
-            pathways of its GLRA module with convolutional adapters (directional, deformable, dynamic multi-dilation and the
-            multi-scale ZoomGLRA), fusion adapters (multiplicative, additive, concatenation and gated) and attention adapters
-            (channel attention, self-attention and Swin-style window attention). With 77K to 307K trainable parameters, the
-            directional, deformable and dynamic adapters improve on the fully trained RAINet on Rain100L. We also compare
-            adapting GLRA with adapting the DCMLP module, and test zero-shot transfer and target-domain adaptation on Rain100H
-            and CDD11.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Method</h2>
-    <div class="figure">
-      <img src="static/images/glra.png" alt="GLRA module with the fusion and local convolution adapters" loading="lazy">
-      <p class="caption">The GLRA module of RAINet and the adapters substituted into it: fusion of the global pathway (top right)
-        and convolutions of the local pathway (bottom). Only the substituted adapter is trained.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section hero is-light">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Results</h2>
-    <p class="has-text-centered mb-4">Rain100L, PSNR and SSIM on the Y channel.</p>
-    <table class="table is-striped is-hoverable results-table">
-      <thead>
-        <tr><th>Method</th><th>Trainable params</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>RAINet (fully trained)</td><td>2.7M</td><td>37.850</td><td>0.9796</td><td>0.01627</td></tr>
-        <tr><td>ZoomGLRA</td><td>96K</td><td>36.648</td><td>0.9773</td><td>0.01072</td></tr>
-        <tr><td>Directional</td><td>77K</td><td>38.987</td><td>0.9828</td><td>0.01252</td></tr>
-        <tr><td>Dynamic</td><td>307K</td><td>39.043</td><td><b>0.9831</b></td><td><b>0.01210</b></td></tr>
-        <tr><td>Deformable</td><td>219K</td><td><b>39.052</b></td><td><b>0.9831</b></td><td>0.01261</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Examples</h2>
-    <div class="figure">
-      <img src="static/images/example.png" alt="Rainy input and outputs of the directional, deformable and ZoomGLRA adapters" loading="lazy">
-      <p class="caption">A Rain100L input and the outputs of the directional, deformable and ZoomGLRA adapters.</p>
-    </div>
-    <div class="figure mt-6">
-      <img src="static/images/comparison.png" alt="Qualitative comparison across Rain100L, Rain100H and CDD11" loading="lazy">
-      <p class="caption">Rainy input, ground truth and adapter outputs on Rain100L, Rain100H and CDD11, for the convolutional
-        and multi-scale adapters (left) and the fusion adapters (right).</p>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <div class="bibtex-header">
-      <h2 class="title">BibTeX</h2>
-      <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
-        <i class="fas fa-copy"></i>
-        <span class="copy-text">Copy</span>
-      </button>
-    </div>
-    <pre id="bibtex-code"><code>@inproceedings{udoete2027frozen,
-  title     = {Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network},
+  <div class="root-content" style="padding-top:30px;">
+    <a name="bib"></a>
+    <h1 class="section-name" style="text-align:left; font-size:25px;">BibTeX</h1>
+    <div class="bibtex" style="position:relative;">
+      <button class="copy-bib" onclick="copyBib()">Copy</button>
+      <code id="bib-text">@InProceedings{Udoete_2027_WACV,
   author    = {Udoete, Toyiomfon and Khan, Alisha and Roy, Sudipa and Njoku, Judith Nkechinyere and Shukla, Diksha},
+  title     = {Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network},
   booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) Workshops},
   year      = {2027}
-}</code></pre>
-  </div>
-</section>
-</main>
-
-<footer class="footer">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>,
-            adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page. It is licensed under a
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-        </div>
-      </div>
+}</code>
     </div>
   </div>
+
+
+  <div class="root-content" style="padding-top:30px; padding-bottom:50px;">
+    <h1 class="section-name" style="text-align:left; font-size:25px;">Contact</h1>
+    <p class="section-content-text">
+      If you have any questions about this work, feel free to reach out:
+      <strong><a href="mailto:tudoete@uwyo.edu">tudoete@uwyo.edu</a></strong><br><br>
+      <strong>Toyiomfon Udoete</strong> · University of Wyoming
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  Frozen-Backbone Adaptation | WACV Workshop 2027 | University of Wyoming |
+  <a href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank">GitHub</a> |
+  <a href="mailto:tudoete@uwyo.edu">Contact</a><br>
 </footer>
 
-<script>
-  function copyBibTeX() {
-    const text = document.getElementById('bibtex-code').textContent;
-    const label = document.querySelector('.copy-bibtex-btn .copy-text');
-    navigator.clipboard.writeText(text).then(() => {
-      label.textContent = 'Copied';
-      setTimeout(() => { label.textContent = 'Copy'; }, 2000);
-    });
-  }
-  window.addEventListener('scroll', () => {
-    document.querySelector('.scroll-to-top').classList.toggle('visible', window.pageYOffset > 300);
-  });
-</script>
 </body>
 </html>
