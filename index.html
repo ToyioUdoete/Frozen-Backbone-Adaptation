@@ -40,10 +40,6 @@
     .results-table tr.ours td { font-weight: 600; color: #111827; }
     .best { font-weight: 700 !important; color: #0f766e !important; }
     .second { text-decoration: underline; }
-    .bibtex { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; overflow-x: auto; position: relative; }
-    .bibtex code { font-family: Menlo, Consolas, monospace; font-size: 13.5px; color: #1f2937; line-height: 1.7; white-space: pre; }
-    .copy-bib { position: absolute; top: 10px; right: 10px; background: #fff; border: 1px solid #d1d5db; color: #374151; font-size: 12px; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
-    .copy-bib:hover { border-color: #0f766e; color: #0f766e; }
     .figure-img { width: 100%; border-radius: 6px; }
     footer { border-top: 1px solid #e5e7eb; color: #6b7280; text-align: center; padding: 24px 20px; font-size: 14px; margin-top: 40px; }
     .two-col > div, .contrib-grid > div { min-width: 0; }
@@ -52,17 +48,6 @@
       .two-col { grid-template-columns: 1fr !important; } .root-content { padding: 0 16px; }
     }
   </style>
-
-  <script>
-    function copyBib() {
-      const text = document.getElementById('bib-text').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('.copy-bib');
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 2000);
-      });
-    }
-  </script>
 </head>
 
 <body style="width:100%;">
@@ -93,17 +78,6 @@
           GitHub
         </a>
       </span>
-      <span class="link-button">
-        <a class="link-button-content" href="#bib">
-          <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v11.5a.5.5 0 0 1-.777.416L7 13.101l-4.223 2.815A.5.5 0 0 1 2 15.5V4zm2-1a1 1 0 0 0-1 1v10.566l3.723-2.482a.5.5 0 0 1 .554 0L11 14.566V4a1 1 0 0 0-1-1H4z"/><path fill-rule="evenodd" d="M4.268 1H12a1 1 0 0 1 1 1v11.768l.223.148A.5.5 0 0 0 14 13.5V2a2 2 0 0 0-2-2H6a2 2 0 0 0-1.732 1z"/></svg>
-          BibTeX
-        </a>
-      </span>
-    </div>
-    <div style="padding-top:28px; text-align:center;">
-      <img src="assets/example.png" alt="Rainy input and outputs of the directional, deformable and ZoomGLRA adapters"
-           width="100%" class="figure-img"
-           onerror="this.style.display='none'"/>
     </div>
 
   </div>
@@ -274,21 +248,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-
-  <div class="root-content" style="padding-top:30px;">
-    <a name="bib"></a>
-    <h1 class="section-name">BibTeX</h1>
-    <div class="bibtex" style="position:relative;">
-      <button class="copy-bib" onclick="copyBib()">Copy</button>
-      <code id="bib-text">@InProceedings{Udoete_2027_WACV,
-  author    = {Udoete, Toyiomfon and Khan, Alisha and Roy, Sudipa and Njoku, Judith Nkechinyere and Shukla, Diksha},
-  title     = {Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network},
-  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) Workshops},
-  year      = {2027}
-}</code>
     </div>
   </div>
 
