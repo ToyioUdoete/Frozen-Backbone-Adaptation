@@ -83,6 +83,10 @@ checkpoints/   adapter weights
 
 Under FBA only the substituted adapter is trained; the rest of the pretrained RAINet stays frozen. Each adapter is trained on an 80/20 train-validation split (seed 66), and the checkpoint with the best validation PSNR is used for testing.
 
+## License
+
+The code is released under the [MIT License](LICENSE). The datasets keep the licenses of their sources.
+
 ## Acknowledgements
 
 We build on RAINet as the pretrained backbone, and on the Rain100L, Rain100H and CDD11 datasets.
