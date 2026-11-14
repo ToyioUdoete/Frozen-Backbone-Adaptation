@@ -39,7 +39,7 @@ Rain100L, PSNR and SSIM on the Y channel.
 
 ## Examples
 
-[![example](assets/example.png)](assets/example.png)
+
 
 [![comparison](assets/comparison.png)](assets/comparison.png)
 
