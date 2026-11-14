@@ -5,287 +5,52 @@
   <meta name="author" content="Toyiomfon Udoete">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Frozen-Backbone Adaptation: replacing one component of a pretrained deraining network and training only that component. WVAQ Workshop, WACV 2027.">
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
 
   <style>
-    /* ── Reset & Base ── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans', sans-serif; background: #fff; color: #222; width: 100%; }
-    a { color: #2c3e50; }
-    a:hover { color: #e67e22; }
-
-    /* ── Root content container (matches OneRestore layout) ── */
-    .root-content {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 30px;
-    }
-
-    /* ── Title / name ── */
-    name {
-      font-family: 'Google Sans', sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a1a2e;
-      line-height: 1.25;
-      display: block;
-      text-align: center;
-    }
-
-    /* ── Author list ── */
-    #author-list {
-      text-align: center;
-      font-size: 18px;
-      margin-top: 16px;
-    }
-    #author-list a {
-      color: #2980b9;
-      text-decoration: none;
-      font-weight: 500;
-    }
+    body { font-family: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif; background: #fff; color: #1f2937; }
+    a { color: #0f766e; }
+    a:hover { color: #115e59; }
+    .root-content { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    name { font-family: 'Source Serif 4', Georgia, serif; font-size: 34px; font-weight: 600; color: #111827; line-height: 1.25; display: block; text-align: center; }
+    #author-list { text-align: center; font-size: 18px; margin-top: 18px; }
+    #author-list a { color: #0f766e; text-decoration: none; }
     #author-list a:hover { text-decoration: underline; }
-
-    #remark-list {
-      text-align: center;
-      font-size: 14px;
-      color: #777;
-      margin-top: 6px;
-    }
-
-    #institution-list {
-      text-align: center;
-      font-size: 16px;
-      color: #444;
-      margin-top: 8px;
-      line-height: 1.8;
-    }
-
-    #publication {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 700;
-      color: #c0392b;
-      margin-top: 12px;
-      letter-spacing: 0.03em;
-    }
-
-    /* ── Link buttons (exact OneRestore style) ── */
-    #button-list {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .link-button {
-      display: inline-block;
-      margin: 4px 3px;
-    }
-
-    .link-button-content {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background-color: #2c3e50;
-      color: white !important;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 500;
-      transition: background-color 0.25s, color 0.25s;
-      border: 2px solid #2c3e50;
-    }
-    .link-button-content:hover {
-      background-color: #fff;
-      color: #2c3e50 !important;
-    }
-    .link-button-content svg { width: 1.1em; height: 1.1em; }
-
-    /* ── GitHub badges ── */
-    #count { padding-top: 16px; text-align: center; }
-
-    /* ── Stats bar ── */
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0;
-      background: #1a1a2e;
-      margin-top: 24px;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .stat-item {
-      flex: 1;
-      min-width: 160px;
-      text-align: center;
-      padding: 20px 12px;
-      border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    .stat-item:last-child { border-right: none; }
-    .stat-num {
-      font-family: 'Google Sans', sans-serif;
-      font-size: 34px;
-      font-weight: 700;
-      color: #fff;
-      display: block;
-      line-height: 1;
-    }
-    .stat-num.orange { color: #e67e22; }
-    .stat-num.green  { color: #2ecc71; }
-    .stat-label {
-      font-size: 12px;
-      color: rgba(255,255,255,0.55);
-      margin-top: 5px;
-    }
-
-    /* ── Section headings (matches OneRestore .section-name) ── */
-    .section-name {
-      font-family: 'Google Sans', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      text-align: center;
-      padding: 24px 0 12px;
-      color: #1a1a2e;
-    }
-
-    /* ── Section text ── */
-    .section-content-text {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #444;
-      text-align: justify;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    /* ── Contribution cards ── */
-    .contrib-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-      margin-top: 16px;
-    }
-    .contrib-card {
-      background: #f8f9fb;
-      border: 1.5px solid #dde3ee;
-      border-top: 3px solid #2c3e50;
-      border-radius: 10px;
-      padding: 24px 22px;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .contrib-card:nth-child(1) { border-top-color: #e67e22; }
-    .contrib-card:nth-child(2) { border-top-color: #2980b9; }
-    .contrib-card:nth-child(3) { border-top-color: #27ae60; }
-    .contrib-card:nth-child(4) { border-top-color: #8e44ad; }
-    .contrib-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
-    .contrib-card h3 { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
-    .contrib-card p  { font-size: 14px; line-height: 1.65; color: #555; }
-    .contrib-icon    { font-size: 26px; margin-bottom: 10px; }
-
-    
-    .demo-btn {
-      background-color: #2c3e50;
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      font-size: 15px;
-      margin: 4px 2px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .demo-btn:hover {
-      background-color: #ecf0f1;
-      color: #2c3e50;
-      border: 2px solid #2c3e50;
-    }
-    .demo-btn.active {
-      background-color: #e67e22;
-      border: 2px solid #e67e22;
-    }
-
-    /* ── Results table ── */
-    .results-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      margin-top: 12px;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #dde3ee;
-    }
-    .results-table thead { background: #1a1a2e; color: #fff; }
-    .results-table th { padding: 12px 14px; text-align: left; font-weight: 500; font-size: 13px; }
+    #institution-list { text-align: center; font-size: 16px; color: #4b5563; margin-top: 8px; }
+    #publication { text-align: center; font-size: 18px; font-weight: 600; color: #0f766e; margin-top: 10px; }
+    #button-list { text-align: center; margin-top: 20px; }
+    .link-button { display: inline-block; margin: 4px; }
+    .link-button-content { display: inline-flex; align-items: center; gap: 6px; color: #0f766e !important; text-decoration: none;
+      padding: 8px 18px; border: 1.5px solid #0f766e; border-radius: 999px; font-size: 15px; font-weight: 600; transition: 0.2s; }
+    .link-button-content:hover { background: #0f766e; color: #fff !important; }
+    .link-button-content svg { width: 1.05em; height: 1.05em; }
+    .section-name { font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; font-weight: 600; text-align: center; padding: 28px 0 14px; color: #111827; }
+    .section-content-text { font-size: 17px; line-height: 1.75; color: #374151; text-align: justify; max-width: 860px; margin: 0 auto; }
+    .shaded-section { background: #f0fdfa; margin-top: 36px; padding: 8px 0 32px; }
+    .contrib-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 12px; }
+    .contrib-card { background: #fff; border-left: 4px solid #14b8a6; border-radius: 6px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .contrib-card h3 { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 6px; }
+    .contrib-card p { font-size: 15px; line-height: 1.6; color: #4b5563; }
+    .results-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; background: #fff; }
+    .results-table th { padding: 10px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #0f766e; color: #111827; }
+    .results-table td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; color: #374151; }
     .results-table th.r, .results-table td.r { text-align: right; }
-    .results-table td { padding: 10px 14px; border-bottom: 1px solid #edf0f5; color: #555; }
-    .results-table tr:last-child td { border-bottom: none; }
-    .results-table tr.group td { background: #f4f6fb; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; }
-    .results-table tr.ours td { background: rgba(41,128,185,0.06); font-weight: 600; color: #222; }
-    .best   { color: #c0392b !important; font-weight: 700 !important; }
-    .second { color: #2980b9 !important; font-weight: 600 !important; }
-
-    /* ── BibTeX ── */
-    .bibtex {
-      background: #1a1a2e;
-      border-radius: 10px;
-      padding: 24px 28px;
-      overflow-x: auto;
-      position: relative;
-    }
-    .bibtex code {
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      color: #a8c8f0;
-      line-height: 1.7;
-      white-space: pre;
-    }
-    .copy-bib {
-      position: absolute;
-      top: 12px; right: 12px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: rgba(255,255,255,0.75);
-      font-size: 12px;
-      padding: 4px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .copy-bib:hover { background: rgba(255,255,255,0.22); color: #fff; }
-
-    /* ── Shaded section ── */
-    .shaded-section {
-      background: #f5f5f5;
-      margin: 30px 0 0;
-      padding: 10px 0 30px;
-    }
-
-    /* ── Poster hover ── */
-    .poster-wrap { display: block; transition: opacity 0.2s; }
-    .poster-wrap:hover { opacity: 0.88; }
-
-    /* ── Footer ── */
-    footer {
-      background: #1a1a2e;
-      color: rgba(255,255,255,0.45);
-      text-align: center;
-      padding: 28px 20px;
-      font-size: 13px;
-      margin-top: 50px;
-    }
-    footer a { color: rgba(255,255,255,0.6); }
-
-    @media (max-width: 680px) {
-      name { font-size: 22px; }
-      .section-name { font-size: 22px; }
-      .stat-num { font-size: 26px; }
-      #author-list { font-size: 15px; }
-      .two-col { grid-template-columns: 1fr !important; }
-      .root-content { padding: 0 16px; }
-    }
+    .results-table tr.group td { font-size: 13px; font-weight: 600; color: #0f766e; padding-top: 14px; }
+    .results-table tr.ours td { font-weight: 600; color: #111827; }
+    .best { font-weight: 700 !important; color: #0f766e !important; }
+    .second { text-decoration: underline; }
+    .bibtex { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px 24px; overflow-x: auto; position: relative; }
+    .bibtex code { font-family: Menlo, Consolas, monospace; font-size: 13.5px; color: #1f2937; line-height: 1.7; white-space: pre; }
+    .copy-bib { position: absolute; top: 10px; right: 10px; background: #fff; border: 1px solid #d1d5db; color: #374151; font-size: 12px; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+    .copy-bib:hover { border-color: #0f766e; color: #0f766e; }
+    .figure-img { width: 100%; border-radius: 6px; }
+    footer { border-top: 1px solid #e5e7eb; color: #6b7280; text-align: center; padding: 24px 20px; font-size: 14px; margin-top: 40px; }
     .two-col > div, .contrib-grid > div { min-width: 0; }
-    .stat-item { min-width: 140px; }
+    @media (max-width: 680px) {
+      name { font-size: 24px; } .section-name { font-size: 22px; } #author-list { font-size: 16px; }
+      .two-col { grid-template-columns: 1fr !important; } .root-content { padding: 0 16px; }
+    }
   </style>
 
   <script>
@@ -304,20 +69,14 @@
 <div style="width:100%;">
 
   <div class="root-content" style="padding-top:36px;">
-
-    <div style="display:flex; align-items:center; justify-content:center; gap:18px; flex-wrap:wrap;">
-      <div style="background:#1a1a2e; color:#fff; font-family:'Google Sans',sans-serif; font-size:22px; font-weight:800; padding:10px 18px; border-radius:10px; letter-spacing:0.02em;">
-        F<span style="color:#e67e22;">BA</span>
-      </div>
-      <name>Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</name>
-    </div>
+    <name>Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</name>
 
     <br>
 
     <div id="author-list">
       Toyiomfon Udoete&nbsp;&nbsp;&nbsp;
-      Alisha Khan&nbsp;&nbsp;&nbsp;
-      Sudipa Roy&nbsp;&nbsp;&nbsp;
+      <a href="https://openreview.net/profile?id=~Alisha_Khan1" target="_blank">Alisha Khan</a>&nbsp;&nbsp;&nbsp;
+      <a href="https://openreview.net/profile?id=~Sudipa_Roy1" target="_blank">Sudipa Roy</a>&nbsp;&nbsp;&nbsp;
       <a href="https://www.judithnjoku.me/" target="_blank">Judith Nkechinyere Njoku</a>&nbsp;&nbsp;&nbsp;
       <a href="https://www.uwyo.edu/eecs/faculty-staff/faculty/diksha-shukla/index.html" target="_blank">Diksha Shukla</a>
     </div>
@@ -325,7 +84,7 @@
     <div id="institution-list">
       Dept. of Electrical Engineering &amp; Computer Science, University of Wyoming, USA
     </div>
-    <p id="publication">WACV Workshop 2027</p>
+    <p id="publication">WVAQ Workshop, WACV 2027</p>
 
     <div id="button-list">
       <span class="link-button">
@@ -341,39 +100,9 @@
         </a>
       </span>
     </div>
-
-    <div id="count">
-      <img src="https://img.shields.io/github/stars/ToyioUdoete/Frozen-Backbone-Adaptation?label=%F0%9F%8C%9F%20Star&color=blue" alt="Stars">
-      &nbsp;&nbsp;
-      <img src="https://img.shields.io/github/forks/ToyioUdoete/Frozen-Backbone-Adaptation?label=%F0%9F%94%A7%20Fork&color=green" alt="Forks">
-    </div>
-
-    <div class="stats-bar" style="margin-top:28px;">
-      <div class="stat-item">
-        <span class="stat-num orange">39.05 dB</span>
-        <div class="stat-label">PSNR on Rain100L (Deformable)</div>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">77K</span>
-        <div class="stat-label">Trainable parameters (Directional)</div>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num green">+1.20 dB</span>
-        <div class="stat-label">Over fully trained RAINet</div>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num orange">2.9%</span>
-        <div class="stat-label">Of RAINet's parameters trained (Directional)</div>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">3</span>
-        <div class="stat-label">Benchmarks: Rain100L, Rain100H, CDD11</div>
-      </div>
-    </div>
-
     <div style="padding-top:28px; text-align:center;">
       <img src="assets/example.png" alt="Rainy input and outputs of the directional, deformable and ZoomGLRA adapters"
-           width="100%" style="border-radius:10px; border:1px solid #dde3ee;"
+           width="100%" class="figure-img"
            onerror="this.style.display='none'"/>
     </div>
 
@@ -389,7 +118,7 @@
         and the fusion adapters: Concatenation (Concat), Gated, Additive (Add.) and Multiplicative (Mult.).
       </p>
       <img src="assets/comparison.png" width="100%"
-           style="border-radius:10px; border:1px solid #dde3ee; background:#fff;"
+           class="figure-img"
            alt="Qualitative comparison across Rain100L, Rain100H and CDD11"
            onerror="this.style.display='none'"/>
     </div>
@@ -442,10 +171,10 @@
   <div class="root-content" style="padding-top:30px;">
     <h1 class="section-name">Method</h1>
     <img src="assets/glra.png" width="100%"
-         style="border-radius:10px; border:1px solid #dde3ee;"
+         class="figure-img"
          alt="GLRA module with the fusion and local convolution adapters"
          onerror="this.style.display='none'"/>
-    <p style="font-size:13px; color:#888; text-align:center; margin-top:10px;">
+    <p style="font-size:14px; color:#6b7280; text-align:center; margin-top:10px;">
       <strong>Fig. 2.</strong> The GLRA module of RAINet and the adapters substituted into it.
       (1) <strong>Fusion ablations</strong> (top right) replace the multiplicative fusion of the global pathway.
       (2) <strong>Local convolution ablations</strong> (bottom) replace the directional spatial convolutions of the local pathway.
@@ -459,8 +188,7 @@
       <h1 class="section-name">Quantitative Results</h1>
       <p class="section-content-text" style="text-align:center; margin-bottom:16px;">
         PSNR and SSIM on the Y channel; LPIPS with AlexNet. Adapters are trained on Rain100L with the backbone frozen.
-        <span style="color:#c0392b; font-weight:700;">Red</span> = best,
-        <span style="color:#2980b9; font-weight:600;">blue</span> = second best within each group.
+        <span class="best">Bold</span> = best, <span class="second">underlined</span> = second best within each group.
       </p>
 
       <div style="overflow-x:auto;">
@@ -508,7 +236,7 @@
 
       <div class="two-col" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
         <div>
-          <p style="font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:8px;">Adaptation Site: GLRA vs. DCMLP</p>
+          <p style="font-size:15px; font-weight:700; color:#111827; margin-bottom:4px;">Adaptation Site: GLRA vs. DCMLP</p>
           <div style="overflow-x:auto;">
             <table class="results-table">
               <thead>
@@ -527,7 +255,7 @@
         </div>
 
         <div>
-          <p style="font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:8px;">Fusion and Attention Adapters</p>
+          <p style="font-size:15px; font-weight:700; color:#111827; margin-bottom:4px;">Fusion and Attention Adapters</p>
           <div style="overflow-x:auto;">
             <table class="results-table">
               <thead>
@@ -552,7 +280,7 @@
 
   <div class="root-content" style="padding-top:30px;">
     <a name="bib"></a>
-    <h1 class="section-name" style="text-align:left; font-size:25px;">BibTeX</h1>
+    <h1 class="section-name">BibTeX</h1>
     <div class="bibtex" style="position:relative;">
       <button class="copy-bib" onclick="copyBib()">Copy</button>
       <code id="bib-text">@InProceedings{Udoete_2027_WACV,
@@ -566,7 +294,7 @@
 
 
   <div class="root-content" style="padding-top:30px; padding-bottom:50px;">
-    <h1 class="section-name" style="text-align:left; font-size:25px;">Contact</h1>
+    <h1 class="section-name">Contact</h1>
     <p class="section-content-text">
       If you have any questions about this work, feel free to reach out:
       <strong><a href="mailto:tudoete@uwyo.edu">tudoete@uwyo.edu</a></strong><br><br>
@@ -577,8 +305,8 @@
 </div>
 
 <footer>
-  Frozen-Backbone Adaptation | WACV Workshop 2027 | University of Wyoming |
-  <a href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank">GitHub</a> |
+  Frozen-Backbone Adaptation &middot; WVAQ Workshop, WACV 2027 &middot; University of Wyoming &middot;
+  <a href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank">GitHub</a> &middot;
   <a href="mailto:tudoete@uwyo.edu">Contact</a><br>
 </footer>
 
