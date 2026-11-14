@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frozen-Backbone Adaptation | WACV 2027 WVAQ Workshop</title>
+  <meta name="description" content="Frozen-Backbone Adaptation: replacing one component of a pretrained deraining network and training only that component, while the rest of the backbone stays frozen.">
+  <meta name="keywords" content="image deraining, image restoration, frozen backbone, adapters, parameter-efficient, RAINet, WACV">
+  <meta name="author" content="Toyiomfon Udoete, Alisha Khan, Sudipa Roy, Judith Nkechinyere Njoku, Diksha Shukla">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network">
+  <meta property="og:description" content="Replacing one component of a pretrained deraining network and training only that component.">
+  <meta property="og:url" content="https://toyioudoete.github.io/Frozen-Backbone-Adaptation/">
+  <meta property="og:image" content="https://toyioudoete.github.io/Frozen-Backbone-Adaptation/static/images/glra.png">
+  <meta name="citation_title" content="Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network">
+  <meta name="citation_author" content="Udoete, Toyiomfon">
+  <meta name="citation_author" content="Khan, Alisha">
+  <meta name="citation_author" content="Roy, Sudipa">
+  <meta name="citation_author" content="Njoku, Judith Nkechinyere">
+  <meta name="citation_author" content="Shukla, Diksha">
+  <meta name="citation_publication_date" content="2027">
+  <meta name="citation_conference_title" content="IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) Workshops">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <style>
+    .figure { margin: 0 auto; }
+    .figure img { width: 100%; height: auto; border-radius: 6px; }
+    .caption { margin-top: 0.75rem; color: #4a4a4a; font-size: 0.95rem; text-align: left; }
+    .results-table { margin: 0 auto; }
+    .results-table td, .results-table th { text-align: center; }
+    .results-table td:first-child, .results-table th:first-child { text-align: left; }
+  </style>
+</head>
+<body>
+
+<button class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to top" aria-label="Scroll to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<main id="main-content">
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Toyiomfon Udoete,</span>
+            <span class="author-block">Alisha Khan,</span>
+            <span class="author-block">Sudipa Roy,</span>
+            <span class="author-block">Judith Nkechinyere Njoku,</span>
+            <span class="author-block">Diksha Shukla</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Department of Electrical Engineering and Computer Science<br>University of Wyoming, Laramie, WY, USA</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">WVAQ Workshop, WACV 2027</span>
+          </div>
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://github.com/ToyioUdoete/Frozen-Backbone-Adaptation" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            Adapting a pretrained restoration network to a new design usually means retraining the whole model. We study
+            Frozen-Backbone Adaptation (FBA): one recurring component of a pretrained deraining network is replaced, and only
+            the new component is trained while the rest of the backbone stays frozen.
+          </p>
+          <p>
+            We use RAINet (2.7M parameters, 20 Image Decomposition Blocks) as the backbone and substitute the local and global
+            pathways of its GLRA module with convolutional adapters (directional, deformable, dynamic multi-dilation and the
+            multi-scale ZoomGLRA), fusion adapters (multiplicative, additive, concatenation and gated) and attention adapters
+            (channel attention, self-attention and Swin-style window attention). With 77K to 307K trainable parameters, the
+            directional, deformable and dynamic adapters improve on the fully trained RAINet on Rain100L. We also compare
+            adapting GLRA with adapting the DCMLP module, and test zero-shot transfer and target-domain adaptation on Rain100H
+            and CDD11.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Method</h2>
+    <div class="figure">
+      <img src="static/images/glra.png" alt="GLRA module with the fusion and local convolution adapters" loading="lazy">
+      <p class="caption">The GLRA module of RAINet and the adapters substituted into it: fusion of the global pathway (top right)
+        and convolutions of the local pathway (bottom). Only the substituted adapter is trained.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Results</h2>
+    <p class="has-text-centered mb-4">Rain100L, PSNR and SSIM on the Y channel.</p>
+    <table class="table is-striped is-hoverable results-table">
+      <thead>
+        <tr><th>Method</th><th>Trainable params</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>RAINet (fully trained)</td><td>2.7M</td><td>37.850</td><td>0.9796</td><td>0.01627</td></tr>
+        <tr><td>ZoomGLRA</td><td>96K</td><td>36.648</td><td>0.9773</td><td>0.01072</td></tr>
+        <tr><td>Directional</td><td>77K</td><td>38.987</td><td>0.9828</td><td>0.01252</td></tr>
+        <tr><td>Dynamic</td><td>307K</td><td>39.043</td><td><b>0.9831</b></td><td><b>0.01210</b></td></tr>
+        <tr><td>Deformable</td><td>219K</td><td><b>39.052</b></td><td><b>0.9831</b></td><td>0.01261</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Examples</h2>
+    <div class="figure">
+      <img src="static/images/example.png" alt="Rainy input and outputs of the directional, deformable and ZoomGLRA adapters" loading="lazy">
+      <p class="caption">A Rain100L input and the outputs of the directional, deformable and ZoomGLRA adapters.</p>
+    </div>
+    <div class="figure mt-6">
+      <img src="static/images/comparison.png" alt="Qualitative comparison across Rain100L, Rain100H and CDD11" loading="lazy">
+      <p class="caption">Rainy input, ground truth and adapter outputs on Rain100L, Rain100H and CDD11, for the convolutional
+        and multi-scale adapters (left) and the fusion adapters (right).</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <div class="bibtex-header">
+      <h2 class="title">BibTeX</h2>
+      <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+        <i class="fas fa-copy"></i>
+        <span class="copy-text">Copy</span>
+      </button>
+    </div>
+    <pre id="bibtex-code"><code>@inproceedings{udoete2027frozen,
+  title     = {Frozen-Backbone Adaptation: An Empirical Study of Component Substitution in a Pretrained Deraining Network},
+  author    = {Udoete, Toyiomfon and Khan, Alisha and Roy, Sudipa and Njoku, Judith Nkechinyere and Shukla, Diksha},
+  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) Workshops},
+  year      = {2027}
+}</code></pre>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>,
+            adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page. It is licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function copyBibTeX() {
+    const text = document.getElementById('bibtex-code').textContent;
+    const label = document.querySelector('.copy-bibtex-btn .copy-text');
+    navigator.clipboard.writeText(text).then(() => {
+      label.textContent = 'Copied';
+      setTimeout(() => { label.textContent = 'Copy'; }, 2000);
+    });
+  }
+  window.addEventListener('scroll', () => {
+    document.querySelector('.scroll-to-top').classList.toggle('visible', window.pageYOffset > 300);
+  });
+</script>
+</body>
+</html>
