@@ -5,7 +5,7 @@
   Department of Electrical Engineering and Computer Science, University of Wyoming
 </div>
 
-[Project page](https://toyioudoete.github.io/Frozen-Backbone-Adaptation/)
+[Project page](https://toyioudoete.github.io/Frozen-Backbone-Adaptation/) · [Supplementary material (PDF)](supplementary/Supplementary.pdf)
 
 ---
 
@@ -44,6 +44,10 @@ Rain100L, PSNR and SSIM on the Y channel.
 [![comparison](assets/comparison.png)](assets/comparison.png)
 
 Rainy input, ground truth and adapter outputs on Rain100L, Rain100H and CDD11, for the convolutional and multi-scale adapters (left) and the fusion adapters (right).
+
+## Supplementary material
+
+[supplementary/Supplementary.pdf](supplementary/Supplementary.pdf) has the full experimental results: a unified table of every FBA setting (in-domain Rain100L, zero-shot transfer to Rain100H and CDD11, and target-domain adaptation), the complete attention and strip-fusion results, the GLRA-site versus DCMLP-site comparison, the end-to-end convolutional ablations, and extra qualitative comparisons. It can also be [read on the project page](https://toyioudoete.github.io/Frozen-Backbone-Adaptation/supplementary.pdf).
 
 ## Installation
 
